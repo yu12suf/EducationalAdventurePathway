@@ -10,6 +10,7 @@ import counselorRoutes from './routes/counselor.routes';
 import adminScholarshipRoutes from './routes/admin/scholarship.routes';
 import scholarshipRoutes from './routes/scholarship.routes';
 import savedScholarshipRoutes from './routes/savedScholarship.routes';
+import { startDeadlineReminderJob } from './jobs/deadlineReminder.job';
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ const PORT = process.env['PORT'] || 5000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // optional but good
 
 // Connect to MongoDB
 connectDB();
@@ -38,6 +40,8 @@ app.use('/api/counselor', counselorRoutes);
 app.use('/api/admin/scholarships', adminScholarshipRoutes);
 app.use('/api/scholarships', savedScholarshipRoutes);
 app.use('/api/scholarships', scholarshipRoutes);
+// Start background jobs
+startDeadlineReminderJob();
 
 // Start server
 app.listen(PORT, () => {

@@ -7,6 +7,7 @@ export interface INotification extends Document {
   title: string;
   message: string;
   referenceId?: mongoose.Types.ObjectId; // e.g., scholarshipId, bookingId
+  metadata?: any; // flexible field for extra data (deadline, daysLeft, etc.)
   isRead: boolean;
   readAt?: Date;
 }
@@ -14,12 +15,17 @@ export interface INotification extends Document {
 const NotificationSchema = new Schema<INotification>(
   {
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
-    category: { type: String, enum: ['scholarship', 'deadline', 'payment', 'booking', 'community', 'system'], required: true },
+    category: {
+      type: String,
+      enum: ['scholarship', 'deadline', 'payment', 'booking', 'community', 'system'],
+      required: true,
+    },
     title: { type: String, required: true },
     message: { type: String, required: true },
-    referenceId: Schema.Types.ObjectId,
+    referenceId: { type: Schema.Types.ObjectId },
+    metadata: { type: Schema.Types.Mixed }, // ✅ added to store deadline, daysLeft, scholarshipId
     isRead: { type: Boolean, default: false },
-    readAt: Date,
+    readAt: { type: Date },
   },
   { timestamps: true }
 );
