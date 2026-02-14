@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    /* -------- Project Layout -------- */
+    "rootDir": "./src",               /* Source files location */
+    "outDir": "./dist",              /* Compiled output location */
+
+    /* -------- Node.js Environment -------- */
+    "target": "ES2020",              /* Use modern ECMAScript features */
+    "module": "commonjs",            /* Node.js uses CommonJS modules */
+    "lib": ["ES2020"],              /* Include ES2020 APIs */
+    "types": ["node"],             /* Type definitions for Node.js */
+    "esModuleInterop": true,        /* Enables default import compatibility (import express from 'express') */
+    "resolveJsonModule": true,      /* Allow importing .json files */
+    "moduleResolution": "node",     /* Use Node.js module resolution strategy */
+
+    /* -------- Strict Type-Checking -------- */
+    "strict": true,                /* Enable all strict type-checking options */
+    "noUncheckedIndexedAccess": true,  /* Add undefined to indexed access */
+    "exactOptionalPropertyTypes": true, /* Differentiate between optional and undefined */
+    "noImplicitReturns": true,      /* Ensure all code paths return a value */
+    "noImplicitOverride": true,    /* Require explicit 'override' keyword */
+    "noUnusedLocals": true,        /* Report unused local variables */
+    "noUnusedParameters": true,    /* Report unused function parameters */
+    "noFallthroughCasesInSwitch": true, /* Prevent fallthrough in switch statements */
+    "noPropertyAccessFromIndexSignature": true, /* Enforce using ['key'] for index signatures */
+
+    /* -------- Output & Debugging -------- */
+    "sourceMap": true,            /* Generate source maps for debugging */
+    "declaration": true,         /* Generate .d.ts declaration files */
+    "declarationMap": true,      /* Generate source maps for declarations */
+
+    /* -------- Additional Safety -------- */
+    "skipLibCheck": true,        /* Skip type checking of declaration files (faster) */
+    "forceConsistentCasingInFileNames": true /* Ensure consistent casing in imports */
+  },
+  "include": ["src/**/*"],        /* Which files to compile */
+  "exclude": ["node_modules", "dist"] /* Folders to ignore */
+}
