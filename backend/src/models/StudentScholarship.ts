@@ -5,14 +5,32 @@ import { IScholarship } from './Scholarship';
 export interface IStudentScholarship extends Document {
   student: IUser['_id'];
   scholarship: IScholarship['_id'];
-  aiMatchScore: number;        // 0-100
+  aiMatchScore: number;               // 0-100
   trackingStatus: 'saved' | 'preparing' | 'applied' | 'awarded' | 'rejected';
   savedAt: Date;
   appliedDate?: Date;
-  applicationWorkflow?: {
+  userSetDeadline?: Date;              // FR50: user-defined deadline
+  reminderLeadTime?: number;            // FR52: days before deadline to remind
+  milestones: {                         // FR51: internal task milestones
+    title: string;
+    targetDate: Date;
+    completed: boolean;
+    completedAt?: Date;
+  }[];
+  applicationWorkflow?: {               // auto-generated checklist (from scholarship required docs)
     tasks: { name: string; deadline?: Date; completed: boolean }[];
   };
 }
+
+const MilestoneSchema = new Schema(
+  {
+    title: { type: String, required: true },
+    targetDate: { type: Date, required: true },
+    completed: { type: Boolean, default: false },
+    completedAt: Date,
+  },
+  { _id: false }
+);
 
 const StudentScholarshipSchema = new Schema<IStudentScholarship>(
   {
@@ -26,6 +44,9 @@ const StudentScholarshipSchema = new Schema<IStudentScholarship>(
     },
     savedAt: { type: Date, default: Date.now },
     appliedDate: Date,
+    userSetDeadline: Date,               // new field
+    reminderLeadTime: { type: Number, default: 7 }, // new field, default 7 days
+    milestones: [MilestoneSchema],       // new field
     applicationWorkflow: {
       tasks: [
         {

@@ -9,6 +9,7 @@ import studentRoutes from './routes/student.routes';
 import counselorRoutes from './routes/counselor.routes';
 import adminScholarshipRoutes from './routes/admin/scholarship.routes';
 import scholarshipRoutes from './routes/scholarship.routes';
+import savedScholarshipRoutes from './routes/savedScholarship.routes';
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.use('/api/documents', documentRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/counselor', counselorRoutes);
 app.use('/api/admin/scholarships', adminScholarshipRoutes);
+app.use('/api/scholarships', savedScholarshipRoutes);
 app.use('/api/scholarships', scholarshipRoutes);
 
 // Start server
