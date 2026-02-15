@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { scholarshipService } from '@/services/scholarship.service';
+import { Scholarship } from '@/types/scholarship';
 import Button from '@/components/ui/Button';
 import NotificationDropdown from '@/components/layout/NotificationDropdown';
 import { 
@@ -17,18 +19,31 @@ import {
   FaSignOutAlt,
   FaBookOpen,
   FaMoneyBillWave,
-  FaUsers
+  FaUsers,
+  FaSpinner
 } from 'react-icons/fa';
 
 export default function DashboardPage() {
   const { user, logout, isLoading } = useAuth();
   const router = useRouter();
+  const [recentScholarships, setRecentScholarships] = useState<Scholarship[]>([]);
+  const [loadingRecent, setLoadingRecent] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !user) {
       router.push('/login');
     }
   }, [user, isLoading, router]);
+
+  useEffect(() => {
+    if (user && user.role === 'student') {
+      setLoadingRecent(true);
+      scholarshipService.getScholarships({ limit: 3, studentId: user.id })
+        .then(res => setRecentScholarships(res.data))
+        .catch(console.error)
+        .finally(() => setLoadingRecent(false));
+    }
+  }, [user]);
 
   if (isLoading) {
     return (
@@ -51,13 +66,13 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar (desktop) */}
+      {/* Sidebar (desktop) - fixed */}
       <aside className="hidden md:flex md:flex-shrink-0">
-        <div className="w-64 bg-white shadow-lg flex flex-col">
+        <div className="w-64 bg-white shadow-lg flex flex-col h-screen sticky top-0">
           <div className="h-16 flex items-center px-6 border-b border-gray-200">
             <h1 className="text-xl font-bold text-blue-600">EduPathway</h1>
           </div>
-          <nav className="flex-1 px-4 py-6 space-y-2">
+          <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
             <Link href="/dashboard" className="flex items-center px-4 py-3 text-gray-700 bg-blue-50 rounded-lg font-medium">
               <FaUserGraduate className="mr-3 text-blue-600" /> Dashboard
             </Link>
@@ -114,7 +129,7 @@ export default function DashboardPage() {
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
         {/* Top bar for mobile */}
-        <div className="md:hidden bg-white shadow-sm p-4 flex justify-between items-center">
+        <div className="md:hidden bg-white shadow-sm p-4 flex justify-between items-center sticky top-0 z-10">
           <h1 className="text-xl font-bold text-blue-600">EduPathway</h1>
           <div className="flex items-center space-x-2">
             <NotificationDropdown />
@@ -124,8 +139,8 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Top bar for desktop */}
-        <div className="hidden md:flex items-center justify-between px-8 py-4 bg-white border-b">
+        {/* Top bar for desktop - sticky */}
+        <div className="hidden md:flex items-center justify-between px-8 py-4 bg-white border-b sticky top-0 z-10">
           <div>
             <h1 className="text-xl font-semibold text-gray-800">Welcome back, {user.firstName}!</h1>
             <p className="text-sm text-gray-500">{isStudent ? 'Student Dashboard' : 'Counselor Dashboard'}</p>
@@ -230,23 +245,28 @@ export default function DashboardPage() {
                 </h2>
                 <div className="space-y-3">
                   {isStudent ? (
-                    <>
-                      <ActivityItem
-                        title="DAAD Scholarship 2026"
-                        subtitle="Deadline: May 31, 2026 · Match: 92%"
-                        status="high"
-                      />
-                      <ActivityItem
-                        title="Chevening Scholarship"
-                        subtitle="Deadline: Nov 1, 2026 · Match: 78%"
-                        status="medium"
-                      />
-                      <ActivityItem
-                        title="Mastercard Foundation"
-                        subtitle="Deadline: Dec 15, 2026 · Match: 65%"
-                        status="low"
-                      />
-                    </>
+                    loadingRecent ? (
+                      <div className="flex justify-center py-4">
+                        <FaSpinner className="animate-spin h-6 w-6 text-blue-600" />
+                      </div>
+                    ) : recentScholarships.length > 0 ? (
+                      recentScholarships.map((scholarship) => (
+                        <ActivityItem
+                          key={scholarship._id}
+                          title={scholarship.title}
+                          subtitle={`Deadline: ${new Date(scholarship.deadline).toLocaleDateString()} · Match: ${scholarship.matchScore || 'N/A'}%`}
+                          status={
+                            scholarship.matchScore && scholarship.matchScore >= 80
+                              ? 'high'
+                              : scholarship.matchScore && scholarship.matchScore >= 50
+                              ? 'medium'
+                              : 'low'
+                          }
+                        />
+                      ))
+                    ) : (
+                      <p className="text-gray-500">No recent scholarships found.</p>
+                    )
                   ) : (
                     <>
                       <ActivityItem
@@ -266,7 +286,7 @@ export default function DashboardPage() {
                       />
                     </>
                   )}
-                  <Link href="#" className="block text-center text-sm text-blue-600 hover:underline pt-2">
+                  <Link href={isStudent ? "/scholarships" : "#"} className="block text-center text-sm text-blue-600 hover:underline pt-2">
                     View all
                   </Link>
                 </div>
