@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Button from '@/components/ui/Button';
+import NotificationDropdown from '@/components/layout/NotificationDropdown';
 import { 
   FaUserGraduate, 
   FaChalkboardTeacher, 
@@ -46,11 +47,11 @@ export default function DashboardPage() {
 
   const isStudent = user.role === 'student';
   const isCounselor = user.role === 'counselor';
-  const profileCompleted = user.profileCompleted || false; // assume this exists
+  const profileCompleted = user.profileCompleted || false;
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
+      {/* Sidebar (desktop) */}
       <aside className="hidden md:flex md:flex-shrink-0">
         <div className="w-64 bg-white shadow-lg flex flex-col">
           <div className="h-16 flex items-center px-6 border-b border-gray-200">
@@ -112,27 +113,32 @@ export default function DashboardPage() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
-        {/* Top bar (mobile) */}
+        {/* Top bar for mobile */}
         <div className="md:hidden bg-white shadow-sm p-4 flex justify-between items-center">
           <h1 className="text-xl font-bold text-blue-600">EduPathway</h1>
-          <Button variant="outline" size="sm" onClick={logout}>
-            Logout
-          </Button>
+          <div className="flex items-center space-x-2">
+            <NotificationDropdown />
+            <Button variant="outline" size="sm" onClick={logout}>
+              Logout
+            </Button>
+          </div>
+        </div>
+
+        {/* Top bar for desktop */}
+        <div className="hidden md:flex items-center justify-between px-8 py-4 bg-white border-b">
+          <div>
+            <h1 className="text-xl font-semibold text-gray-800">Welcome back, {user.firstName}!</h1>
+            <p className="text-sm text-gray-500">{isStudent ? 'Student Dashboard' : 'Counselor Dashboard'}</p>
+          </div>
+          <div className="flex items-center space-x-4">
+            <NotificationDropdown />
+            <Button variant="outline" size="sm" onClick={logout}>
+              Logout
+            </Button>
+          </div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Welcome Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Welcome back, {user.firstName}! 👋
-            </h1>
-            <p className="mt-2 text-gray-600">
-              {isStudent 
-                ? 'Continue your journey to international education.' 
-                : 'Help students achieve their dreams.'}
-            </p>
-          </div>
-
           {/* Profile Completion Alert (if incomplete) */}
           {!profileCompleted && (
             <div className="mb-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md">
